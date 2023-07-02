@@ -46,6 +46,18 @@ class Library:
         self.save_books_to_file()
         messagebox.showinfo("Success", "Book added to the library!")
 
+    def remove_book(self, book):
+        self.books.remove(book)
+        self.save_books_to_file()
+        messagebox.showinfo("Success", "Book removed from the library!")
+
+    def update_book(self, book, new_title, new_author, availability):
+        book.title = new_title
+        book.author = new_author
+        book.available = availability
+        self.save_books_to_file()
+        messagebox.showinfo("Success", "Book updated!")
+
     def search_books(self, keyword):
         found_books = []
         for book in self.books:
@@ -59,27 +71,33 @@ class LibraryApp:
         self.root = root
         self.library = Library()
 
-        self.title_label = tk.Label(root, text="Library Management")
+        self.title_label = tk.Label(
+            root, text="Library Management", font=("Arial", 18, "bold"))
         self.title_label.pack()
 
+        button_frame = tk.Frame(root)
+        button_frame.pack()
+
         self.add_button = tk.Button(
-            root, text="Add Book", command=self.open_add_book_window)
-        self.add_button.pack(pady=5)
+            button_frame, text="Add Book", command=self.open_add_book_window, font=("Arial", 12))
+        self.add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.search_frame = tk.Frame(root)
         self.search_frame.pack(pady=10)
 
-        self.search_entry = tk.Entry(self.search_frame)
+        self.search_entry = tk.Entry(self.search_frame, font=("Arial", 12))
         self.search_entry.grid(row=0, column=1, padx=5)
 
-        self.search_label = tk.Label(self.search_frame, text="Search:")
+        self.search_label = tk.Label(
+            self.search_frame, text="Search:", font=("Arial", 12))
         self.search_label.grid(row=0, column=0, padx=5)
 
         self.search_button = tk.Button(
-            root, text="Search Books", command=self.search_books)
-        self.search_button.pack(pady=5)
+            self.search_frame, text="Search Books", command=self.search_books, font=("Arial", 12))
+        self.search_button.grid(row=0, column=2, padx=5)
 
-        self.result_label = tk.Label(root, text="Search Results:")
+        self.result_label = tk.Label(
+            root, text="Search Results:", font=("Arial", 14, "bold"))
         self.result_label.pack()
 
         self.result_count_label = tk.Label(root, text="")
@@ -95,16 +113,23 @@ class LibraryApp:
         self.result_table.bind("<Double-1>", self.edit_book)
 
         self.show_library_button = tk.Button(
-            root, text="Show Library", command=self.show_library)
+            root, text="Show Library", command=self.show_library, font=("Arial", 12))
         self.show_library_button.pack(pady=10)
 
+        self.book_count_label = tk.Label(
+            root, text=f"Total Books: {len(self.library.books)}", font=("Arial", 12))
+        self.book_count_label.pack()
+
     def open_add_book_window(self):
-        title = simpledialog.askstring("New Book", "Enter the book title:")
+        title = simpledialog.askstring(
+            "New Book", "Enter the book title:", parent=self.root)
         if title:
             author = simpledialog.askstring(
-                "New Book", "Enter the book author:")
+                "New Book", "Enter the book author:", parent=self.root)
             if author:
                 self.library.add_book(title, author)
+                self.book_count_label.config(
+                    text=f"Total Books: {len(self.library.books)}")
 
     def search_books(self):
         keyword = self.search_entry.get()
@@ -136,38 +161,59 @@ class LibraryApp:
         edit_window = tk.Toplevel(self.root)
         edit_window.title("Edit Book")
 
-        title_label = tk.Label(edit_window, text="Title:")
+        title_label = tk.Label(edit_window, text="Title:", font=("Arial", 12))
         title_label.pack()
 
-        title_entry = tk.Entry(edit_window)
+        title_entry = tk.Entry(edit_window, font=("Arial", 12))
         title_entry.insert(tk.END, title)
         title_entry.pack()
 
-        author_label = tk.Label(edit_window, text="Author:")
+        author_label = tk.Label(
+            edit_window, text="Author:", font=("Arial", 12))
         author_label.pack()
 
-        author_entry = tk.Entry(edit_window)
+        author_entry = tk.Entry(edit_window, font=("Arial", 12))
         author_entry.insert(tk.END, author)
         author_entry.pack()
 
-        availability_label = tk.Label(edit_window, text="Availability:")
+        availability_label = tk.Label(
+            edit_window, text="Availability:", font=("Arial", 12))
         availability_label.pack()
 
-        availability_entry = tk.Entry(edit_window)
+        availability_entry = tk.Entry(edit_window, font=("Arial", 12))
         availability_entry.insert(tk.END, availability)
         availability_entry.pack()
 
+        delete_button = tk.Button(edit_window, text="Delete Book", command=lambda: self.delete_book(
+            selected_item, edit_window), font=("Arial", 12), bg="red", fg="white")
+        delete_button.pack(pady=5)
+
         save_button = tk.Button(edit_window, text="Save",
                                 command=lambda: self.update_book(selected_item, title_entry.get(), author_entry.get(),
-                                                                 availability_entry.get(), edit_window))
+                                                                 availability_entry.get(), edit_window), font=("Arial", 12))
         save_button.pack()
 
-    def update_book(self, item, new_title, new_author, availability, edit_window):
-        self.result_table.item(item, values=(
-            new_title, new_author, availability))
-        messagebox.showinfo("Success", "Book updated!")
-        self.library.save_books_to_file()
+    def delete_book(self, item, edit_window):
+        self.result_table.delete(item)
+        messagebox.showinfo("Success", "Book deleted!")
+        self.library.remove_book(item)
         edit_window.destroy()
+
+    def update_book(self, item, new_title, new_author, availability, edit_window):
+        if new_title.strip() == "" or new_author.strip() == "":
+            messagebox.showerror("Error", "Title and author cannot be empty!")
+        else:
+            selected_item = self.result_table.selection()[0]
+            book_values = self.result_table.item(selected_item)['values']
+            title = book_values[0]
+            author = book_values[1]
+            availability = book_values[2]
+
+            book = Book(title, author, availability)
+            self.library.update_book(book, new_title, new_author, availability)
+            self.result_table.set(item, "Title", new_title)
+            self.result_table.set(item, "Author", new_author)
+            edit_window.destroy()
 
     def show_library(self):
         library_window = tk.Toplevel(self.root)
