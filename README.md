@@ -1,14 +1,14 @@
 # Library-Management-System
-This is a simple library management system implemented using Tkinter, a Python GUI toolkit. The application allows users to manage a collection of books, including adding new books, searching for books, editing book details, and displaying the library's inventory.
+This is a simple Home Library App that allows you to manage your personal book collection. You can add new books, search for books by title or author, edit book details, and delete books from your library.
 
 ## Features
 
-- Add Book: Users can add new books to the library by entering the book's title and author.
-- Search Books: Users can search for books in the library by entering a keyword. The application will display the search results, including the title, author, and availability of each book.
-- Edit Book Details: Users can double-click on a book in the search results to edit its title, author, and availability. The changes are saved automatically.
-- Show Library: Users can view the complete inventory of the library, including all books sorted alphabetically by title.
-- Data Persistence: The application loads the book data from an ODS file ("library.ods") on startup and saves any changes back to the file.
-
+- Add new books: You can add books to your library by entering the title and author information.
+- Search books: You can search for books in your library by title or author.
+- Edit book details: You can edit the title, author, and availability of a book.
+- Delete books: You can remove books from your library.
+- Show library: You can view your entire library with all the books.
+    
 ## Usage
 
 1. Launch the application.
